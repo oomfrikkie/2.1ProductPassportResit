@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  mqtt:
+    image: eclipse-mosquitto:2
+    restart: always
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  postgres:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: passportdb
+    ports:
+      - "5432:5432"
+
+  mariadb:
+    image: mariadb:11.3
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: admin
+      MARIADB_DATABASE: producttracking
+    ports:
+      - "3307:3306"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+  tracking-ts:
+    build: ./  # folder where Dockerfile is located
+    container_name: tracking-ts
+    restart: always
+    depends_on:
+      - mqtt
+      - postgres
+      - mariadb
+    environment:
+      MQTT_URL: mqtt://mqtt:1883
+      POSTGRES_URL: postgres://admin:admin@postgres:5432/passportdb
+      MARIADB_HOST: mariadb
+      MARIADB_USER: root
+      MARIADB_PASSWORD: admin
