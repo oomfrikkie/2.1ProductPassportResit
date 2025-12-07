@@ -7,7 +7,7 @@ services:
     ports:
       - "1883:1883"
     volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto:/mosquitto/config
 
   postgres:
     image: postgres:16
@@ -25,6 +25,8 @@ services:
     environment:
       MARIADB_ROOT_PASSWORD: admin
       MARIADB_DATABASE: producttracking
+      MARIADB_USER: admin
+      MARIADB_PASSWORD: admin
     ports:
       - "3307:3306"
 
@@ -35,7 +37,7 @@ services:
       - "8080:8080"
 
   tracking-ts:
-    build: ./  # folder where Dockerfile is located
+    build: ./
     container_name: tracking-ts
     restart: always
     depends_on:

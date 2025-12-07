@@ -1,0 +1,19 @@
+import mqtt from "mqtt";
+
+export function createMqttClient(brokerUrl: string) {
+  const client = mqtt.connect(brokerUrl);
+
+  client.on("connect", () => {
+    console.log("🐻 MQTT connected:", brokerUrl);
+  });
+
+  client.on("error", (err) => {
+    console.error("❌ MQTT error:", err);
+  });
+
+  client.on("message", (topic, msg) => {
+    console.log(`📩 MQTT message <${topic}>: ${msg.toString()}`);
+  });
+
+  return client;
+}
