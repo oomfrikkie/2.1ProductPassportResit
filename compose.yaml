@@ -12,23 +12,29 @@ services:
   postgres:
     image: postgres:16
     restart: always
+    env_file: .env
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: passportdb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
+    volumes:
+      - ./postgres_init:/docker-entrypoint-initdb.d
 
   mariadb:
     image: mariadb:11.3
     restart: always
+    env_file: .env
     environment:
-      MARIADB_ROOT_PASSWORD: admin
-      MARIADB_DATABASE: producttracking
-      MARIADB_USER: admin
-      MARIADB_PASSWORD: admin
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
     ports:
       - "3307:3306"
+    volumes:
+      - ./mariadb_init:/docker-entrypoint-initdb.d
 
   adminer:
     image: adminer
@@ -44,9 +50,10 @@ services:
       - mqtt
       - postgres
       - mariadb
+    env_file: .env
     environment:
-      MQTT_URL: mqtt://mqtt:1883
-      POSTGRES_URL: postgres://admin:admin@postgres:5432/passportdb
-      MARIADB_HOST: mariadb
-      MARIADB_USER: root
-      MARIADB_PASSWORD: admin
+      MQTT_URL: ${MQTT_URL}
+      POSTGRES_URL: ${POSTGRES_URL}
+      MARIADB_HOST: ${MARIADB_HOST}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
