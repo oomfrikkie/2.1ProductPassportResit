@@ -8,7 +8,7 @@ const client = mqtt.connect(process.env.MQTT_URL || "mqtt://localhost:1883");
 
 client.on("connect", () => {
   console.log("🟢 MQTT connected");
-  client.subscribe("ssm/tracking/#");
+  client.subscribe("ssm/tracking/#"); // listens to all scanner events
 });
 
 // --------------------
@@ -30,7 +30,7 @@ client.on("message", async (topic: string, payload: Buffer) => {
     const data = JSON.parse(payload.toString());
     console.log("📥 Incoming:", topic, data);
 
-    // save to db
+    // INSERT event into material_event table
     const conn = await pool.getConnection();
     await conn.query(
       `INSERT INTO material_event (scanner_id, product_id, material_id, event_type)
@@ -45,12 +45,15 @@ client.on("message", async (topic: string, payload: Buffer) => {
 
     console.log("🟠 Event saved!");
 
-    // UNS output
+    // Publish UNS event
     const unsTopic = `uns/product/${data.product_id ?? "unknown"}`;
-    client.publish(unsTopic, JSON.stringify({
-      timestamp: Date.now(),
-      ...data
-    }));
+    client.publish(
+      unsTopic,
+      JSON.stringify({
+        timestamp: Date.now(),
+        ...data
+      })
+    );
 
     console.log("📤 UNS published:", unsTopic);
 
