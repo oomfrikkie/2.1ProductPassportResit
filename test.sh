@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# Detect the actual MQTT container name no matter the project folder
-MQTT_CONTAINER=$(docker ps --format "{{.Names}}" | grep "_mqtt_1\|mqtt-1\|mqtt_1\|mqtt" | head -n 1)
+# Find the MQTT container name dynamically
+MQTT_CONTAINER=$(docker ps --format '{{.Names}}' | grep -i 'mqtt' | head -n 1)
 
 if [ -z "$MQTT_CONTAINER" ]; then
-  echo "❌ Could not find MQTT container. Make sure Docker is running and 'docker compose up -d' was executed."
-  exit 1
+    echo "❌ No MQTT container found. Make sure Docker is running and compose is up."
+    exit 1
 fi
 
-echo "🐳 Using MQTT container: $MQTT_CONTAINER"
+echo "🐋 Using MQTT container: $MQTT_CONTAINER"
 
-TOTAL_SCANS=${1:-5}
+TOTAL_SCANS=${1:-5}   # default = 5 scans
 TOPIC="ssm/tracking/test"
 
 echo "🔧 Starting scanner simulator..."
@@ -25,7 +25,7 @@ do
     echo "🔍 scan $i started"
     echo "📦 sending payload: $MESSAGE"
 
-    docker exec -i "$MQTT_CONTAINER" mosquitto_pub \
+    docker exec "$MQTT_CONTAINER" mosquitto_pub \
         -t "$TOPIC" \
         -m "$MESSAGE"
 
