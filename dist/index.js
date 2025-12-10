@@ -11,7 +11,7 @@ const mariadb_1 = __importDefault(require("mariadb"));
 const client = mqtt_1.default.connect(process.env.MQTT_URL || "mqtt://localhost:1883");
 client.on("connect", () => {
     console.log("🟢 MQTT connected");
-    client.subscribe("ssm/tracking/#");
+    client.subscribe("ssm/tracking/#"); // listens to all scanner events
 });
 // --------------------
 // MARIADB POOL
@@ -30,7 +30,7 @@ client.on("message", async (topic, payload) => {
     try {
         const data = JSON.parse(payload.toString());
         console.log("📥 Incoming:", topic, data);
-        // save to db
+        // INSERT event into material_event table
         const conn = await pool.getConnection();
         await conn.query(`INSERT INTO material_event (scanner_id, product_id, material_id, event_type)
        VALUES (?, ?, ?, 'Material Added')`, [
@@ -40,7 +40,7 @@ client.on("message", async (topic, payload) => {
         ]);
         conn.release();
         console.log("🟠 Event saved!");
-        // UNS output
+        // Publish UNS event
         const unsTopic = `uns/product/${data.product_id ?? "unknown"}`;
         client.publish(unsTopic, JSON.stringify({
             timestamp: Date.now(),
