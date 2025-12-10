@@ -1,3 +1,5 @@
+name: productpassportresit
+
 version: "3.9"
 
 services:
@@ -57,6 +59,3 @@ services:
       MARIADB_HOST: ${MARIADB_HOST}
       MARIADB_USER: ${MARIADB_USER}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD}
-      MARIADB_DB: ${MARIADB_DATABASE}
-    ports:
-      - "3001:3001"
